@@ -5,6 +5,8 @@
 use std::io::{self, Read, Write};
 use std::fs::File;
 
+use rocket::response::content::Html;
+
 #[derive(Debug, PartialEq, Eq)]
 struct Page {
     title: String,
@@ -32,6 +34,15 @@ fn index() -> &'static str {
     "Hello, world!"
 }
 
+#[get("/view/<title>")]
+fn view(title: String) -> io::Result<Html<String>> {
+    let page = Page::load(title)?;
+    let res = format!("<h1>{}</h1><div>{}</div>", page.title, page.body);
+    Ok(Html(res))
+}
+
 fn main() {
-    rocket::ignite().mount("/", routes![index]).launch();
+    rocket::ignite()
+        .mount("/", routes![index, view])
+        .launch();
 }
