@@ -1,3 +1,7 @@
+#![feature(proc_macro_hygiene, decl_macro)]
+
+#[macro_use] extern crate rocket;
+
 use std::io::{self, Read, Write};
 use std::fs::File;
 
@@ -23,13 +27,11 @@ impl Page {
     }
 }
 
-fn main() -> io::Result<()> {
-    let page = Page {
-        title: String::from("Test"),
-        body: String::from("This is a sample page"),
-    };
-    page.save()?;
-    let page = Page::load(String::from("Test"))?;
-    println!("{:#?}", page);
-    Ok(())
+#[get("/")]
+fn index() -> &'static str {
+    "Hello, world!"
+}
+
+fn main() {
+    rocket::ignite().mount("/", routes![index]).launch();
 }

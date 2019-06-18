@@ -5,3 +5,4 @@ authors = ["Sergey Bugaev <bugaevc@gmail.com>"]
 edition = "2018"
 
 [dependencies]
+rocket = "0.4.1"
