@@ -5,6 +5,7 @@
 use std::io::{self, Read, Write};
 use std::fs::File;
 
+use rocket::response::Redirect;
 use rocket_contrib::templates::Template;
 
 use serde::Serialize;
@@ -44,10 +45,13 @@ fn index() -> &'static str {
 }
 
 #[get("/view/<title>")]
-fn view(title: String) -> io::Result<Template> {
-    let page = Page::load(title)?;
-    let res = Template::render("view", page);
-    Ok(res)
+fn view(title: String) -> Result<Template, Redirect> {
+    if let Ok(page) = Page::load(title.clone()) {
+        let res = Template::render("view", page);
+        Ok(res)
+    } else {
+        Err(Redirect::to(uri!(edit: title)))
+    }
 }
 
 #[get("/edit/<title>")]
