@@ -5,6 +5,7 @@
 use std::io::{self, Read, Write};
 use std::fs::File;
 
+use rocket::request::Form;
 use rocket::response::Redirect;
 use rocket_contrib::templates::Template;
 
@@ -61,9 +62,25 @@ fn edit(title: String) -> Template {
     Template::render("edit", page)
 }
 
+#[derive(Debug, FromForm)]
+struct SaveForm {
+    body: String
+}
+
+#[post("/save/<title>", data = "<form>")]
+fn save(title: String, form: Form<SaveForm>) -> io::Result<Redirect> {
+    let form = form.into_inner();
+    let page = Page {
+        title: title.clone(),
+        body: form.body,
+    };
+    page.save()?;
+    Ok(Redirect::to(uri!(view: title)))
+}
+
 fn main() {
     rocket::ignite()
-        .mount("/", routes![index, view, edit])
+        .mount("/", routes![index, view, edit, save])
         .attach(Template::fairing())
         .launch();
 }
