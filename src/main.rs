@@ -5,7 +5,6 @@
 use std::io::{self, Read, Write};
 use std::fs::File;
 
-use rocket::response::content::Html;
 use rocket_contrib::templates::Template;
 
 use serde::Serialize;
@@ -45,10 +44,10 @@ fn index() -> &'static str {
 }
 
 #[get("/view/<title>")]
-fn view(title: String) -> io::Result<Html<String>> {
+fn view(title: String) -> io::Result<Template> {
     let page = Page::load(title)?;
-    let res = format!("<h1>{}</h1><div>{}</div>", page.title, page.body);
-    Ok(Html(res))
+    let res = Template::render("view", page);
+    Ok(res)
 }
 
 #[get("/edit/<title>")]
