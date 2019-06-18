@@ -14,6 +14,13 @@ struct Page {
 }
 
 impl Page {
+    fn blank(title: String) -> Page {
+        Page {
+            title,
+            body: String::new()
+        }
+    }
+
     fn load(title: String) -> io::Result<Page> {
         let file_name = format!("{}.txt", title);
         let mut file = File::open(file_name)?;
@@ -41,8 +48,21 @@ fn view(title: String) -> io::Result<Html<String>> {
     Ok(Html(res))
 }
 
+#[get("/edit/<title>")]
+fn edit(title: String) -> Html<String> {
+    let page = Page::load(title.clone())
+        .unwrap_or(Page::blank(title));
+    let res = format!("
+        <h1>Editing {title}</h1>
+        <form action=\"/save/{title}\" method=\"POST\">
+            <textarea name=\"body\">{body}</textarea><br>
+            <input type=\"submit\" value=\"Save\">
+        </form>", title = page.title, body = page.body);
+    Html(res)
+}
+
 fn main() {
     rocket::ignite()
-        .mount("/", routes![index, view])
+        .mount("/", routes![index, view, edit])
         .launch();
 }
