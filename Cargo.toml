@@ -6,3 +6,12 @@ edition = "2018"
 
 [dependencies]
 rocket = "0.4.1"
+
+[dependencies.rocket_contrib]
+version = "0.4.1"
+default-features = false
+features = ["tera_templates"]
+
+[dependencies.serde]
+version = "1.0"
+features = ["derive"]

@@ -6,8 +6,11 @@ use std::io::{self, Read, Write};
 use std::fs::File;
 
 use rocket::response::content::Html;
+use rocket_contrib::templates::Template;
 
-#[derive(Debug, PartialEq, Eq)]
+use serde::Serialize;
+
+#[derive(Debug, PartialEq, Eq, Serialize)]
 struct Page {
     title: String,
     body: String,
@@ -49,20 +52,15 @@ fn view(title: String) -> io::Result<Html<String>> {
 }
 
 #[get("/edit/<title>")]
-fn edit(title: String) -> Html<String> {
+fn edit(title: String) -> Template {
     let page = Page::load(title.clone())
         .unwrap_or(Page::blank(title));
-    let res = format!("
-        <h1>Editing {title}</h1>
-        <form action=\"/save/{title}\" method=\"POST\">
-            <textarea name=\"body\">{body}</textarea><br>
-            <input type=\"submit\" value=\"Save\">
-        </form>", title = page.title, body = page.body);
-    Html(res)
+    Template::render("edit", page)
 }
 
 fn main() {
     rocket::ignite()
         .mount("/", routes![index, view, edit])
+        .attach(Template::fairing())
         .launch();
 }
